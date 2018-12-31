@@ -39,6 +39,29 @@ public class MySQLConnection {
     }
 
     public void open(){
+        Thread open = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (true){
+                    /* If connection is closed or null then try to reconnect */
+                    try{
+                        if (conn == null){
+                            connect();
+                        }
+                        else if (conn.isClosed()){
+                            connect();
+                        }
+                    }
+                    catch (SQLException e){
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+        open.start();
+    }
+
+    private void connect(){
         /* checking internet connection */
         if(isInternetConnection()){
             /* Alternative of AsyncTask */
@@ -122,18 +145,6 @@ public class MySQLConnection {
 
     /* All user submitted query will be execute here */
     private Object executeQuery(String query){
-        /* If connection is closed or null then try to reconnect */
-        try{
-            if (conn == null){
-                open();
-            }
-            else if (conn.isClosed()){
-                open();
-            }
-        }
-        catch (SQLException e){
-            e.printStackTrace();
-        }
         /* null means error here */
         if (conn != null){
             if (!query.isEmpty()) {

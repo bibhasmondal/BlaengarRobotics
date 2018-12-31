@@ -17,13 +17,7 @@ public class SplashActivity extends AppCompatActivity {
         super.onStart();
         /* connecting to database */
         conn = new MySQLConnection(SplashActivity.this,getString(R.string.dbConnAddress),getString(R.string.dbName),getString(R.string.dbUserName),getString(R.string.dbPassword));
-        final Thread open = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                conn.open();
-            }
-        });
-        open.start();
+        conn.open();
     }
 
     @Override

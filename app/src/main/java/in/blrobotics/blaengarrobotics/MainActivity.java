@@ -3,6 +3,8 @@ package in.blrobotics.blaengarrobotics;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -31,13 +33,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
         /* connecting to database */
         conn = new MySQLConnection(this);
         /* getSharedPreferences */
         sharedPreferences = getSharedPreferences(getString(R.string.shared_preference_name), Context.MODE_PRIVATE);
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -61,10 +64,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         /* Set Nav header name and email */
         View hView =  navigationView.getHeaderView(0);
+        ImageView dp = hView.findViewById(R.id.imageDP);
         TextView name = hView.findViewById(R.id.name);
         TextView email = hView.findViewById(R.id.email);
+
+        Bitmap image = byteArrayToBitmap(stringToByteArray(sharedPreferences.getString("dp",null)));
+        if (image!=null){
+            dp.setImageBitmap(image);
+        }
+
         name.setText(sharedPreferences.getString("f_name","")+" "+sharedPreferences.getString("l_name",""));
         email.setText(sharedPreferences.getString("email",""));
+
 
         /* List view */
         listRefresh();
@@ -108,12 +119,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //noinspection SimplifiableIfStatement
         switch (item.getItemId()){
             case R.id.action_about:
+//                Intent about = new Intent(this,AboutActivity.class);
+//                startActivity(about);
                 return  true;
             case R.id.action_settings:
+//                Intent settings = new Intent(this,SettingsActivity.class);
+//                startActivity(settings);
                 return true;
-
+            default:
+                return super.onOptionsItemSelected(item);
         }
-        return super.onOptionsItemSelected(item);
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
@@ -130,27 +145,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
 
             case R.id.nav_account:
+//                Intent account = new Intent(this,AccountActivity.class);
+//                startActivity(account);
                 break;
 
             case R.id.nav_signout:
-                if (!item.isChecked()){
-                    item.setChecked(true);
-                    SharedPreferences.Editor editor = sharedPreferences.edit();
-                    editor.clear();
-                    editor.commit();
-                    item.setTitle("Sign In");
-                    listRefresh();
-                }
-                else{
-                    Intent login = new Intent(this,LoginActivity.class);
-                    startActivity(login);
-                }
-
-
-                break;
-
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.clear();
+                editor.commit();
+                Intent login = new Intent(this,LoginActivity.class);
+                startActivity(login);
+                finish();
         }
-
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
@@ -200,7 +206,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     }
                     query = "SELECT * FROM `Data` WHERE `device` =" + deviceID + " ORDER BY `id` DESC LIMIT 1";
                     JSONArray deviceData = (JSONArray) conn.execute(query);
-                    if (deviceData != null) {
+                    if (!deviceData.isNull(0)) {
                         for (int j = 0; j < deviceData.length(); j++) {
                             deviceData.getJSONObject(j).remove("id");
                             deviceData.getJSONObject(j).remove("device");
@@ -210,6 +216,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             }
                         }
                     }
+                    else{
+                        String[] temp = new String[10];
+                        Arrays.fill(temp,"No data available");
+                        data.addAll(Arrays.asList(temp));
+                    }
                     dataset.add(data);
                 }
                 return new List[]{dataset, mapPositionToId};
@@ -218,5 +229,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             e.printStackTrace();
         }
         return null;
+    }
+
+    public byte[] stringToByteArray (String data){
+        if (data != null){
+            return data.getBytes();
+        }
+        return null;
+    }
+
+    public Bitmap byteArrayToBitmap(byte[] byteArray){
+        if (byteArray != null){
+            if (byteArray.length>0){
+                return BitmapFactory.decodeByteArray(byteArray,0,byteArray.length);
+            }
+        }
+        return  null;
     }
 }

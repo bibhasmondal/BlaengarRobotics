@@ -10,11 +10,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import org.json.JSONArray;
-
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Iterator;
+
+//TODO  put dp in SharedPreferences by "dp" key
 
 public class LoginActivity extends AppCompatActivity {
     MySQLConnection conn;
@@ -40,7 +41,7 @@ public class LoginActivity extends AppCompatActivity {
                         String query = "SELECT * FROM `Users` WHERE `username`='" + user + "'";
 
                         JSONArray result = (JSONArray)conn.execute(query);
-                        if (result != null){
+                        if (!result.isNull(0)){
                             /* SharedPreferences */
                             SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.shared_preference_name), Context.MODE_PRIVATE);
                             SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -66,6 +67,7 @@ public class LoginActivity extends AppCompatActivity {
                                     /* Change activity */
                                     Intent mainActivity = new Intent(LoginActivity.this, MainActivity.class);
                                     startActivity(mainActivity);
+                                    finish();
                                 } else {
                                     password.setError(getString(R.string.error_incorrect_password));
                                 }
@@ -110,5 +112,9 @@ public class LoginActivity extends AppCompatActivity {
             return false;
         }
         return true;
+    }
+
+    public String byteArrayToString(byte[] data){
+        return new String(data);
     }
 }

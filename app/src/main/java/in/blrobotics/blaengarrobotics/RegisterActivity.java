@@ -1,10 +1,13 @@
 package in.blrobotics.blaengarrobotics;
 
+import android.R.id;
 import android.content.Intent;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Patterns;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
@@ -19,13 +22,17 @@ public class RegisterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
+        // Show the Up button in the action bar.
+        ActionBar actionBar =getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+
         /* Database connection */
         conn = new MySQLConnection(this);
 
         final ViewGroup register_form = (ViewGroup) findViewById(R.id.register_form);
 
         /* for testing */
-//        String[] value = {"bibhasmondal96", "Bibhas", "Mondal", "8622004966", "bibhasmondal96@gmail.com", "Gc6j3#new","Gc6j3#new"};
+//        String[] value = {"bibhasmondal96", "Bibhas", "Mondal", "xxxxxxxxxx", "xxxxxxxx@gmail.com", "xxxxxxxx","xxxxxxxx"};
 //        int i = 0;
 //        ArrayList<EditText> editTexts = getEditTextList(register_form);
 //        for (EditText editText:editTexts){
@@ -51,9 +58,27 @@ public class RegisterActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
                 startActivity(intent);
+                finish();
             }
         });
 
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case id.home:
+                finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
     }
 
     public ArrayList[] getData(ViewGroup form) {
@@ -111,10 +136,12 @@ public class RegisterActivity extends AppCompatActivity {
         query += ") VALUES (";
         query += TextUtils.join(",", data[1]);   //(NULL, 'laptop', MD5('a1b2c3d4'), '0000000000', NULL)
         query += ")";
-        System.out.println(query);
         if (conn.execute(query) != null) {
-            Toast toast = Toast.makeText(this, getString(R.string.success_register), Toast.LENGTH_LONG);
+            Toast toast = Toast.makeText(this, getString(R.string.success_register), Toast.LENGTH_SHORT);
             toast.show();
+            Intent login = new Intent(this,LoginActivity.class);
+            startActivity(login);
+            finish();
         }
     }
 
