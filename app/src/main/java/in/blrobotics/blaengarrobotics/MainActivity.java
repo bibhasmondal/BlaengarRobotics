@@ -123,8 +123,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 //                startActivity(about);
                 return  true;
             case R.id.action_settings:
-//                Intent settings = new Intent(this,SettingsActivity.class);
-//                startActivity(settings);
+                Intent settings = new Intent(this,MySettingsActivity.class);
+                startActivity(settings);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
