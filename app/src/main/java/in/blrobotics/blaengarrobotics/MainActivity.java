@@ -9,6 +9,8 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AppCompatDelegate;
+import android.support.v7.preference.PreferenceManager;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -123,7 +125,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 //                startActivity(about);
                 return  true;
             case R.id.action_settings:
-                Intent settings = new Intent(this,MySettingsActivity.class);
+                Intent settings = new Intent(this,SettingsActivity.class);
                 startActivity(settings);
                 return true;
             default:

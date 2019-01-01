@@ -6,6 +6,8 @@ import android.content.SharedPreferences;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatDelegate;
+import android.support.v7.preference.PreferenceManager;
 import org.json.JSONArray;
 
 
@@ -16,8 +18,15 @@ public class SplashActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         /* connecting to database */
-        conn = new MySQLConnection(SplashActivity.this,getString(R.string.dbConnAddress),getString(R.string.dbName),getString(R.string.dbUserName),getString(R.string.dbPassword));
+        conn = new MySQLConnection(SplashActivity.this, getString(R.string.dbConnAddress), getString(R.string.dbName), getString(R.string.dbUserName), getString(R.string.dbPassword));
         conn.open();
+
+        // Setting up theme
+        if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean("theme_switch", false)) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        }
     }
 
     @Override
