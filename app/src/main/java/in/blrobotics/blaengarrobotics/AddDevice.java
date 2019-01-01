@@ -27,7 +27,6 @@ public class AddDevice extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.add_device);
-        getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_YES);
         // Show the Up button in the action bar.
         ActionBar actionBar =getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
