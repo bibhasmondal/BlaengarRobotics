@@ -41,6 +41,8 @@ public class LoginActivity extends AppCompatActivity {
                         String query = "SELECT * FROM `Users` WHERE `username`='" + user + "'";
 
                         JSONArray result = (JSONArray)conn.execute(query);
+
+                        /* Checking user exist or not */
                         if (!result.isNull(0)){
                             /* SharedPreferences */
                             SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.shared_preference_name), Context.MODE_PRIVATE);
@@ -48,10 +50,6 @@ public class LoginActivity extends AppCompatActivity {
                             /* Clearing SharedPreferences */
                             editor.clear();
                             editor.commit();
-                            /* Checking user exist or not */
-                            if (result.isNull(0)) {
-                                username.setError(getString(R.string.error_invalid_user));
-                            } else {
                                 if (result.getJSONObject(0).getString("password").equals(pass)) {
                                     int userId = (int) result.getJSONObject(0).remove("id");
                                     /* Closing connection */
@@ -71,7 +69,9 @@ public class LoginActivity extends AppCompatActivity {
                                 } else {
                                     password.setError(getString(R.string.error_incorrect_password));
                                 }
-                            }
+                        }
+                        else{
+                            username.setError(getString(R.string.error_invalid_user));
                         }
                     }
                     catch (Exception e) {
