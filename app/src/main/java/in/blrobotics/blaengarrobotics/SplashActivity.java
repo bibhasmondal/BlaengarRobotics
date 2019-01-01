@@ -8,7 +8,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.preference.PreferenceManager;
-import org.json.JSONArray;
 
 
 public class SplashActivity extends AppCompatActivity {
@@ -51,7 +50,7 @@ public class SplashActivity extends AppCompatActivity {
                     intent=new Intent(SplashActivity.this,MainActivity.class);
                 }
                 else{
-                    intent=new Intent(SplashActivity.this,LoginActivity.class);
+                    intent=new Intent(SplashActivity.this, MapFragment.class);
                 }
                 startActivity(intent);
                 finish();
