@@ -50,8 +50,8 @@
                 android:label="@string/title_activity_settings"
                 android:theme="@style/AppTheme">
         </activity>
-        <activity android:name=".MapFragment"
-                  android:label="Maps"
+        <activity android:name=".DeviceData"
+                  android:label="Data"
                   android:theme="@style/AppTheme">
         </activity>
 

@@ -1,6 +1,7 @@
 package in.blrobotics.blaengarrobotics;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,17 +12,20 @@ import java.util.*;
 
 public class CustomAdapter extends ArrayAdapter implements  View.OnClickListener {
     int resource;
-    List<Integer> positionToId = null;
+    List<Integer> positionToId;
+    Class<?> onClickCls;
 
-    public CustomAdapter(Context context, int resource, List<List> dataset) {
+    public CustomAdapter(Context context, int resource,Class<?> onClickCls, List<List> dataset) {
         super(context, resource, dataset);
         this.resource = resource;
+        this.onClickCls = onClickCls;
     }
 
-    public CustomAdapter(Context context, int resource, List<List> dataset, List<Integer> positionToId) {
+    public CustomAdapter(Context context, int resource,Class<?> onClickCls,List<List> dataset,List<Integer> positionToId) {
         super(context, resource, dataset);
         this.resource = resource;
         this.positionToId = positionToId;
+        this.onClickCls = onClickCls;
     }
 
     @NonNull
@@ -63,6 +67,9 @@ public class CustomAdapter extends ArrayAdapter implements  View.OnClickListener
         int id = (Integer) v.getTag();
         Toast toast = Toast.makeText(getContext(), String.valueOf(id), Toast.LENGTH_SHORT);
         toast.show();
+        Intent intent = new Intent(getContext(),onClickCls);
+        intent.putExtra("deviceId",id);
+        getContext().startActivity(intent);
     }
 
     public List<View> viewGroupToViewList(ViewGroup parent) {

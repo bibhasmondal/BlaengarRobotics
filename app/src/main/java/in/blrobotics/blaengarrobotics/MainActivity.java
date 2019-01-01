@@ -175,7 +175,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 List<Integer> positionToId = data[1];
                 /* Custom array adapter */
                 ListView listView = (ListView) findViewById(R.id.idListView);
-                CustomAdapter customAdapter = new CustomAdapter(this, R.layout.dashboard, dataset,positionToId);
+                CustomAdapter customAdapter = new CustomAdapter(this, R.layout.dashboard,DeviceData.class,dataset,positionToId);
                 listView.setAdapter(customAdapter);
             }
 
