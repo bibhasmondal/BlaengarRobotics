@@ -4,6 +4,8 @@ import android.content.Context;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
+import android.support.v7.app.AppCompatDelegate;
+import android.support.v7.preference.PreferenceManager;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -26,6 +28,10 @@ public class MapCallback implements OnMapReadyCallback {
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
+        // setting night mode on map
+        if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("theme_switch", false)) {
+            googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(context, R.raw.dark_map));
+        }
         addPolyline(googleMap);
         setLocation(googleMap);
     }
