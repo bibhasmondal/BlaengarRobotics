@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
@@ -24,7 +25,7 @@ public class DeviceData extends AppCompatActivity {
     private Runnable runnable;
     private int syncTime = 5000;
 
-    protected SupportMapFragment supportMapFragment;
+    protected MySupportMapFragment mySupportMapFragment;
     protected MapCallback map;
     protected GraphFragment speed;
     protected GraphFragment acceleration;
@@ -51,9 +52,19 @@ public class DeviceData extends AppCompatActivity {
         // getting serial no from device id
         getSNFromId(deviceId);
 
+
+
         /**Loading map*/
         // Getting reference to the SupportMapFragment of device_data.xml
-        supportMapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        mySupportMapFragment = (MySupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        // Adding feature for nested scrolling
+        final ScrollView mScrollView = (ScrollView) findViewById(R.id.sv_container);
+        mySupportMapFragment.setListener(new MySupportMapFragment.OnTouchListener() {
+            @Override
+            public void onTouch() {
+                mScrollView.requestDisallowInterceptTouchEvent(true);
+            }
+        });
 
 
         /** Setting data to the fragment*/
@@ -191,7 +202,7 @@ public class DeviceData extends AppCompatActivity {
                                     System.out.println(angList);
                                     // Getting GoogleMap object from the fragment
                                     map = new MapCallback(DeviceData.this,points);
-                                    supportMapFragment.getMapAsync(map);
+                                    mySupportMapFragment.getMapAsync(map);
                                     // setting value to the fragment
                                     speed.setData(speedList);
                                     acceleration.setData(accList);
