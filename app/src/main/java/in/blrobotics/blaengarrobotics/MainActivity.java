@@ -5,12 +5,11 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatDelegate;
-import android.support.v7.preference.PreferenceManager;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -169,15 +168,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         /* User dashboard */
         if (sharedPreferences.contains("userId")) {
             int userId = sharedPreferences.getInt("userId", 0);
-            List[] data = getDataFromUserId(userId);
-            if (data != null){
-                List<List> dataset = data[0];
-                List<Integer> positionToId = data[1];
-                /* Custom array adapter */
-                ListView listView = (ListView) findViewById(R.id.idListView);
-                CustomAdapter customAdapter = new CustomAdapter(this, R.layout.dashboard,DeviceData.class,dataset,positionToId);
-                listView.setAdapter(customAdapter);
-            }
+            getDataFromUserId(userId);
 
 //                    conn.close();
         }
@@ -188,49 +179,76 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    public List[] getDataFromUserId(int userId){
-        try {
-            String query = "SELECT * FROM `Devices` WHERE `id` IN (SELECT `device` FROM `Owners` WHERE `user`=" + userId + ")";
-            JSONArray deviceDetails = (JSONArray) conn.execute(query);
-            if (deviceDetails != null ) {
-                List<List> dataset = new ArrayList();
-                List<Integer> mapPositionToId = new ArrayList();
-                for (int i = 0; i < deviceDetails.length(); i++) {
+    public void getDataFromUserId(int userId){
+        final List<List> dataset = new ArrayList();
+        final List<Integer> mapPositionToId = new ArrayList();
+        String query = "SELECT * FROM `Devices` WHERE `id` IN (SELECT `device` FROM `Owners` WHERE `user`=" + userId + ")";
+        AsyncTask asyncTask = conn.execute(query);
+        conn.setOnResult(new MySQLConnection.OnResult(asyncTask) {
+            @Override
+            public void getResult(Object dataObject) throws Exception {
+                JSONArray deviceDetails = (JSONArray)dataObject;
+                if (deviceDetails != null ) {
 
-                    int deviceID = (int)deviceDetails.getJSONObject(i).remove("id");
-                    /* Mapping index for array to its corresponding ID */
-                    mapPositionToId.add(i,deviceID);
+                    final int[] condition = new int[2];
+                    condition[0] = deviceDetails.length();
+                    condition[1] = 0;
 
-                    List<String> data = new ArrayList();
-                    for (Iterator<String> itDetails = deviceDetails.getJSONObject(i).keys(); itDetails.hasNext(); ) {
-                        String keyDetails = itDetails.next();
-                        data.add(deviceDetails.getJSONObject(i).getString(keyDetails));
-                    }
-                    query = "SELECT * FROM `Data` WHERE `device` =" + deviceID + " ORDER BY `id` DESC LIMIT 1";
-                    JSONArray deviceData = (JSONArray) conn.execute(query);
-                    if (!deviceData.isNull(0)) {
-                        for (int j = 0; j < deviceData.length(); j++) {
-                            deviceData.getJSONObject(j).remove("id");
-                            deviceData.getJSONObject(j).remove("device");
-                            for (Iterator<String> itData = deviceData.getJSONObject(j).keys(); itData.hasNext(); ) {
-                                String keyData = itData.next();
-                                data.add(deviceData.getJSONObject(j).getString(keyData));
+                    for (int i = 0; i < deviceDetails.length(); i++) {
+
+                        int deviceID = (int)deviceDetails.getJSONObject(i).remove("id");
+                        /* Mapping index for array to its corresponding ID */
+                        mapPositionToId.add(i,deviceID);
+
+                        final List<String> data = new ArrayList();
+                        for (Iterator<String> itDetails = deviceDetails.getJSONObject(i).keys(); itDetails.hasNext(); ) {
+                            String keyDetails = itDetails.next();
+                            data.add(deviceDetails.getJSONObject(i).getString(keyDetails));
+                        }
+                        String query = "SELECT * FROM `Data` WHERE `device` =" + deviceID + " ORDER BY `id` DESC LIMIT 1";
+                        AsyncTask asyncTask = conn.execute(query);
+                        conn.setOnResult(new MySQLConnection.OnResult(asyncTask) {
+                            @Override
+                            public void getResult(Object dataObject) throws Exception {
+                                JSONArray deviceData = (JSONArray)dataObject;
+                                if (!deviceData.isNull(0)) {
+                                    for (int j = 0; j < deviceData.length(); j++) {
+                                        deviceData.getJSONObject(j).remove("id");
+                                        deviceData.getJSONObject(j).remove("device");
+                                        for (Iterator<String> itData = deviceData.getJSONObject(j).keys(); itData.hasNext(); ) {
+                                            String keyData = itData.next();
+                                            data.add(deviceData.getJSONObject(j).getString(keyData));
+                                        }
+                                    }
+                                }
+                                else{
+                                    String[] temp = new String[10];
+                                    Arrays.fill(temp,"No data available");
+                                    data.addAll(Arrays.asList(temp));
+                                }
+                                dataset.add(data);
+                                ++condition[1];
                             }
+                        });
+
+                    }
+                    while (true){
+                        if(condition[0] == condition[1]){
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    /* Custom array adapter */
+                                    ListView listView = (ListView) findViewById(R.id.idListView);
+                                    CustomAdapter customAdapter = new CustomAdapter(MainActivity.this, R.layout.dashboard,DeviceData.class,dataset,mapPositionToId);
+                                    listView.setAdapter(customAdapter);
+                                }
+                            });
+                            return;
                         }
                     }
-                    else{
-                        String[] temp = new String[10];
-                        Arrays.fill(temp,"No data available");
-                        data.addAll(Arrays.asList(temp));
-                    }
-                    dataset.add(data);
                 }
-                return new List[]{dataset, mapPositionToId};
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
+        });
     }
 
     public byte[] stringToByteArray (String data){

@@ -3,6 +3,7 @@ package in.blrobotics.blaengarrobotics;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -35,21 +36,22 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (isValid(username) && isValid(password)){
-                    try {
-                        String user = username.getText().toString();
-                        String pass = MD5(password.getText().toString());
-                        String query = "SELECT * FROM `Users` WHERE `username`='" + user + "'";
-
-                        JSONArray result = (JSONArray)conn.execute(query);
-
-                        /* Checking user exist or not */
-                        if (!result.isNull(0)){
-                            /* SharedPreferences */
-                            SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.shared_preference_name), Context.MODE_PRIVATE);
-                            SharedPreferences.Editor editor = sharedPreferences.edit();
-                            /* Clearing SharedPreferences */
-                            editor.clear();
-                            editor.commit();
+                    String user = username.getText().toString();
+                    String query = "SELECT * FROM `Users` WHERE `username`='" + user + "'";
+                    AsyncTask asyncTask = conn.execute(query);
+                    conn.setOnResult(new MySQLConnection.OnResult(asyncTask) {
+                        @Override
+                        public void getResult(Object dataObject) throws Exception{
+                            JSONArray result = (JSONArray)dataObject;
+                            /* Checking user exist or not */
+                            if (!result.isNull(0)){
+                                /* SharedPreferences */
+                                SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.shared_preference_name), Context.MODE_PRIVATE);
+                                SharedPreferences.Editor editor = sharedPreferences.edit();
+                                /* Clearing SharedPreferences */
+                                editor.clear();
+                                editor.commit();
+                                String pass = MD5(password.getText().toString());
                                 if (result.getJSONObject(0).getString("password").equals(pass)) {
                                     int userId = (int) result.getJSONObject(0).remove("id");
                                     /* Closing connection */
@@ -67,16 +69,22 @@ public class LoginActivity extends AppCompatActivity {
                                     startActivity(mainActivity);
                                     finish();
                                 } else {
-                                    password.setError(getString(R.string.error_incorrect_password));
+                                    runOnUiThread(new Runnable() {
+                                        public void run() {
+                                            password.setError(getString(R.string.error_incorrect_password));
+                                        }
+                                    });
                                 }
+                            }
+                            else{
+                                runOnUiThread(new Runnable() {
+                                    public void run() {
+                                        username.setError(getString(R.string.error_invalid_user));
+                                    }
+                                });
+                            }
                         }
-                        else{
-                            username.setError(getString(R.string.error_invalid_user));
-                        }
-                    }
-                    catch (Exception e) {
-                        e.printStackTrace();
-                    }
+                    });
                 }
             }
         });

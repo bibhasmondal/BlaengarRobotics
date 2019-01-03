@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -39,69 +40,97 @@ public class AddDevice extends AppCompatActivity {
 
         // Getting the instance of Button
         Button device_submit = findViewById(R.id.device_submit);
+        AsyncTask asyncTask = conn.execute("SELECT `serial_no` FROM `Devices`");
+        conn.setOnResult(new MySQLConnection.OnResult(asyncTask) {
+            @Override
+            public void getResult(Object dataObject) throws Exception {
+                JSONArray result = (JSONArray)dataObject;
 
-        try {
-            JSONArray result = (JSONArray)conn.execute("SELECT `serial_no` FROM `Devices`");
-            List<String> deviceList = new ArrayList<String>();
+                final List<String> deviceList = new ArrayList<String>();
 
-            for (int i = 0; i < result.length(); i++) {
-                final JSONObject e = result.getJSONObject(i);
-                String name = e.getString("serial_no");
-                deviceList.add(name);
+                for (int i = 0; i < result.length(); i++) {
+                    final JSONObject e = result.getJSONObject(i);
+                    String name = e.getString("serial_no");
+                    deviceList.add(name);
+                }
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        /* Creating the instance of ArrayAdapter containing list of device serial no */
+                        ArrayAdapter<String> deviceListAdapter = new ArrayAdapter<String>(AddDevice.this,android.R.layout.simple_dropdown_item_1line, deviceList);
+                        deviceSlNo.setThreshold(1);//will start working from first character
+                        deviceSlNo.setAdapter(deviceListAdapter);//setting the adapter data into the AutoCompleteTextView
+                        deviceSlNo.setTextColor(Color.BLACK);
+                    }
+                });
+
             }
-
-            /* Creating the instance of ArrayAdapter containing list of device serial no */
-            ArrayAdapter<String> deviceListAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_dropdown_item_1line, deviceList);
-
-            deviceSlNo.setThreshold(1);//will start working from first character
-            deviceSlNo.setAdapter(deviceListAdapter);//setting the adapter data into the AutoCompleteTextView
-            deviceSlNo.setTextColor(Color.BLACK);
-
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        });
 
 
         device_submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                String name = getResources().getResourceEntryName(view.getId());
-//                Toast toast = Toast.makeText(AddDevice.this,name,Toast.LENGTH_SHORT);
-//                toast.show();
-                Integer serialNo = Integer.parseInt(deviceSlNo.getText().toString());
-                try {
-                    JSONArray result = (JSONArray)conn.execute("SELECT `id` from `Devices` where serial_no='"+serialNo+"'");
-                    SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.shared_preference_name), Context.MODE_PRIVATE);
+//            String name = getResources().getResourceEntryName(view.getId());
+//            Toast toast = Toast.makeText(AddDevice.this,name,Toast.LENGTH_SHORT);
+//            toast.show();
+            Integer serialNo = Integer.parseInt(deviceSlNo.getText().toString());
+            AsyncTask asyncTask = conn.execute("SELECT `id` from `Devices` where serial_no='"+serialNo+"'");
+            conn.setOnResult(new MySQLConnection.OnResult(asyncTask) {
+                @Override
+                public void getResult(Object dataObject) throws Exception {
+                JSONArray result = (JSONArray)dataObject;
+                SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.shared_preference_name), Context.MODE_PRIVATE);
 
-                    if (!result.isNull(0) && sharedPreferences.contains("userId")){
-                        int userId = sharedPreferences.getInt("userId",0);
-                        int deviceId = result.getJSONObject(0).getInt("id");
-                        String query = "INSERT INTO `Owners` (`id`, `device`, `user`) VALUES (NULL, "+deviceId+", "+userId+")";
-                        if ((Integer) conn.execute(query) != null){
-                            /* Closing connection */
-                            //conn.close();
-                            /* Make toast */
-                            Toast toast = Toast.makeText(AddDevice.this,getString(R.string.added_device),Toast.LENGTH_LONG);
-                            toast.show();
+                if (!result.isNull(0) && sharedPreferences.contains("userId")){
+                    int userId = sharedPreferences.getInt("userId",0);
+                    int deviceId = result.getJSONObject(0).getInt("id");
+                    String query = "INSERT INTO `Owners` (`id`, `device`, `user`) VALUES (NULL, "+deviceId+", "+userId+")";
+                    AsyncTask asyncTask = conn.execute(query);
+                    conn.setOnResult(new MySQLConnection.OnResult(asyncTask) {
+                        @Override
+                        public void getResult(Object dataObject) throws Exception {
+                            if (dataObject != null){
+                                /* Closing connection */
+                                //conn.close();
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        /* Make toast */
+                                        Toast toast = Toast.makeText(AddDevice.this,getString(R.string.added_device),Toast.LENGTH_LONG);
+                                        toast.show();
 
-                            /* Get intent and go back */
-                            Intent mainActivity = new Intent(AddDevice.this,MainActivity.class);
-                            startActivity(mainActivity);
+                                        /* Get intent and go back */
+                                        Intent mainActivity = new Intent(AddDevice.this,MainActivity.class);
+                                        startActivity(mainActivity);
+                                    }
+                                });
+                            }
+                            else{
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        /* Make toast */
+                                        Toast toast = Toast.makeText(AddDevice.this,getString(R.string.error_already_added),Toast.LENGTH_LONG);
+                                        toast.show();
+                                    }
+                                });
+                            }
                         }
-                        else{
-                            /* Make toast */
-                            Toast toast = Toast.makeText(AddDevice.this,getString(R.string.error_already_added),Toast.LENGTH_LONG);
-                            toast.show();
-                        }
-                    }
-                    else{
-                        Toast toast = Toast.makeText(AddDevice.this,getString(R.string.error_device),Toast.LENGTH_LONG);
-                        toast.show();
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
+                    });
+
                 }
+                else{
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast toast = Toast.makeText(AddDevice.this,getString(R.string.error_device),Toast.LENGTH_LONG);
+                            toast.show();
+                        }
+                    });
+                }
+                }
+            });
             }
         });
     }

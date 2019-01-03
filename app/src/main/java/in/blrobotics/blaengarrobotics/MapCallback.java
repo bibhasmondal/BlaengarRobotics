@@ -4,22 +4,24 @@ import android.content.Context;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
-import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.preference.PreferenceManager;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.*;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
 
 public class MapCallback implements OnMapReadyCallback {
 
+    GoogleMap googleMap;
     Marker marker;
     List<LatLng> points;
     Context context;
+    LatLng lastLatLng = null;
 
     public MapCallback(Context context,List<LatLng> points){
         this.points = points;
@@ -28,6 +30,7 @@ public class MapCallback implements OnMapReadyCallback {
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
+        this.googleMap = googleMap;
         // setting night mode on map
         if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("theme_switch", false)) {
             googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(context, R.raw.dark_map));
@@ -38,24 +41,23 @@ public class MapCallback implements OnMapReadyCallback {
 
     // set location to google maps
     public void setLocation(GoogleMap googleMap) {
-        LatLng latLng = null;
         if (points != null && !points.isEmpty()){
-            latLng = points.get(points.size()-1);
+            lastLatLng = points.get(points.size()-1);
         }
         // Add marker to the map
         if (marker != null){
             marker.remove();
         }
-        if (googleMap!=null && latLng != null){
-            String[] information = getInformationFromLocation(latLng);
+        if (googleMap!=null && lastLatLng != null){
+            String[] information = getInformationFromLocation(lastLatLng);
             // Marker option
             MarkerOptions markerOptions = new MarkerOptions();
-            markerOptions.position(latLng);
+            markerOptions.position(lastLatLng);
             markerOptions.title(information[0]);
             markerOptions.snippet(information[1]);
             marker = googleMap.addMarker(markerOptions);
             // Showing the current location in Google Map
-            googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+            googleMap.moveCamera(CameraUpdateFactory.newLatLng(lastLatLng));
             // Zoom in the Google Map
             googleMap.animateCamera(CameraUpdateFactory.zoomTo(15));
         }
@@ -83,5 +85,12 @@ public class MapCallback implements OnMapReadyCallback {
         if (googleMap != null){
             googleMap.addPolyline(polylineOptions);
         }
+    }
+
+    public void appendData(List<LatLng> points){
+        this.points = Arrays.asList(lastLatLng);
+        this.points.addAll(points);
+        addPolyline(googleMap);
+        setLocation(googleMap);
     }
 }

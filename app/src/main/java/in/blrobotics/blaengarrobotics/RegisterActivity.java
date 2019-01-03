@@ -2,6 +2,7 @@ package in.blrobotics.blaengarrobotics;
 
 import android.R.id;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -32,14 +33,14 @@ public class RegisterActivity extends AppCompatActivity {
         final ViewGroup register_form = (ViewGroup) findViewById(R.id.register_form);
 
         /* for testing */
-//        String[] value = {"bibhasmondal96", "Bibhas", "Mondal", "xxxxxxxxxx", "xxxxxxxx@gmail.com", "xxxxxxxx","xxxxxxxx"};
-//        int i = 0;
-//        ArrayList<EditText> editTexts = getEditTextList(register_form);
-//        for (EditText editText:editTexts){
-//            String name = getResources().getResourceEntryName(editText.getId());
-//            editText.setText(value[i]);
-//            ++i;
-//        }
+        /**String[] value = {"bibhasmondal96", "Bibhas", "Mondal", "xxxxxxxxxx", "xxxxxxxx@gmail.com", "xxxxxxxx","xxxxxxxx"};
+        int i = 0;
+        ArrayList<EditText> editTexts = getEditTextList(register_form);
+        for (EditText editText:editTexts){
+            String name = getResources().getResourceEntryName(editText.getId());
+            editText.setText(value[i]);
+            ++i;
+        }*/
 
         Button register_button = findViewById(R.id.register_button);
         register_button.setOnClickListener(new View.OnClickListener() {
@@ -111,18 +112,6 @@ public class RegisterActivity extends AppCompatActivity {
                         }
                         break;
                 }
-//                if (!key.equals("re_password")) {
-//                    arrayListField.add("`" + key + "`");
-//                    if (!key.equals("password")) {
-//                        if (value.isEmpty()) {
-//                            arrayListValue.add("NULL");
-//                        } else {
-//                            arrayListValue.add("'" + value + "'");
-//                        }
-//                    } else {
-//                        arrayListValue.add("MD5('" + value + "')");
-//                    }
-//                }
             }
         }
         ArrayList[] data = new ArrayList[]{arrayListField, arrayListValue};
@@ -136,13 +125,24 @@ public class RegisterActivity extends AppCompatActivity {
         query += ") VALUES (";
         query += TextUtils.join(",", data[1]);   //(NULL, 'laptop', MD5('a1b2c3d4'), '0000000000', NULL)
         query += ")";
-        if (conn.execute(query) != null) {
-            Toast toast = Toast.makeText(this, getString(R.string.success_register), Toast.LENGTH_SHORT);
-            toast.show();
-            Intent login = new Intent(this,LoginActivity.class);
-            startActivity(login);
-            finish();
-        }
+        AsyncTask asyncTask = conn.execute(query);
+        conn.setOnResult(new MySQLConnection.OnResult(asyncTask) {
+            @Override
+            public void getResult(Object dataObject) throws Exception {
+                if ( dataObject != null) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast toast = Toast.makeText(RegisterActivity.this, getString(R.string.success_register), Toast.LENGTH_SHORT);
+                            toast.show();
+                            Intent login = new Intent(RegisterActivity.this,LoginActivity.class);
+                            startActivity(login);
+                            finish();
+                        }
+                    });
+                }
+            }
+        });
     }
 
     public boolean isValid(ViewGroup form) {

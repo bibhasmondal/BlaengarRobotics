@@ -1,6 +1,7 @@
 package in.blrobotics.blaengarrobotics;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.ActionBar;
@@ -11,7 +12,6 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.jjoe64.graphview.series.DataPoint;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.*;
@@ -24,9 +24,13 @@ public class DeviceData extends AppCompatActivity {
     private Runnable runnable;
     private int syncTime = 5000;
 
+    protected SupportMapFragment supportMapFragment;
+    protected MapCallback map;
     protected GraphFragment speed;
     protected GraphFragment acceleration;
     protected GraphFragment angle;
+
+    TextView textView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,30 +47,14 @@ public class DeviceData extends AppCompatActivity {
         Intent intent = getIntent();
         deviceId = intent.getIntExtra("deviceId",0); // 0 because sql id starts from 1
 
-        TextView textView = (TextView) findViewById(R.id.tv_device);
-        textView.setText("Device Serial No: "+getSNFromId(deviceId));
-
-        /* Getting data from database */
-        String query = "SELECT * FROM Data WHERE `device` = "+deviceId;
-        JSONArray result = (JSONArray) conn.execute(query);
-
-        List<LatLng> points = new ArrayList();
-        for(int i=0;i<result.length();++i){
-            try {
-                JSONObject items = result.getJSONObject(i);
-                LatLng position = new LatLng(items.getDouble("lat"),(items.getDouble("lon")));
-                points.add(position);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
+        textView = (TextView) findViewById(R.id.tv_device);
+        // getting serial no from device id
+        getSNFromId(deviceId);
 
         /**Loading map*/
         // Getting reference to the SupportMapFragment of device_data.xml
-        SupportMapFragment supportMapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-        // Getting GoogleMap object from the fragment
-        MapCallback map = new MapCallback(this,points);
-        supportMapFragment.getMapAsync(map);
+        supportMapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+
 
         /** Setting data to the fragment*/
         // getting speed fragment
@@ -90,15 +78,9 @@ public class DeviceData extends AppCompatActivity {
         angle.setLinesColor(Arrays.asList("red","green","blue"));
         angle.setLinesTitle(Arrays.asList("Ang_X","Ang_Y","Ang_Z"));
 
-        //Getting Data for using deviceID
-        List[] data = getData(deviceId);
-        List<DataPoint[]> speedList = data[0];
-        List<DataPoint[]> accList = data[1];
-        List<DataPoint[]> angList = data[2];
+
         // setting value to the fragment
-        speed.setData(speedList);
-        acceleration.setData(accList);
-        angle.setData(angList);
+        getData(deviceId,false);
     }
 
     @Override
@@ -108,15 +90,7 @@ public class DeviceData extends AppCompatActivity {
             @Override
             public void run() {
                 // TODO //synchronization time have to be set from setting
-                //Getting Data for using deviceID
-                List[] data = getData(deviceId);
-                List<DataPoint[]> speedList = data[0];
-                List<DataPoint[]> accList = data[1];
-                List<DataPoint[]> angList = data[2];
-                //appending data
-                speed.appendData(speedList);
-                acceleration.appendData(accList);
-                angle.appendData(angList);
+                getData(deviceId,true);
                 // Works like infinite loop
                 handler.postDelayed(this, syncTime);
             }
@@ -147,48 +121,89 @@ public class DeviceData extends AppCompatActivity {
         finish();
     }
 
-    private String getSNFromId(int id){
-        String SN = "";
-        JSONArray result = (JSONArray) conn.execute("SELECT `serial_no` FROM `Devices` WHERE `id` = "+id);
-        try {
-            SN = result.getJSONObject(0).getString("serial_no");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return SN;
+    private void getSNFromId(int id){
+        AsyncTask asyncTask = conn.execute("SELECT `serial_no` FROM `Devices` WHERE `id` = "+id);
+        conn.setOnResult(new MySQLConnection.OnResult(asyncTask) {
+            @Override
+            public void getResult(Object dataObject) throws Exception {
+                JSONArray result = (JSONArray)dataObject;
+                final String sn = result.getJSONObject(0).getString("serial_no");
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        textView.setText("Device Serial No: "+sn);
+                    }
+                });
+            }
+        });
     }
 
-    public List[] getData(int deviceId){
+    public void getData(int deviceId, final boolean async){
+        final List<LatLng> points = new ArrayList();
+        final List<DataPoint[]> speedList = new ArrayList();
+        final List<DataPoint[]> accList = new ArrayList();
+        final List<DataPoint[]> angList = new ArrayList();
         String query = "SELECT * FROM `Data` WHERE `device` = "+deviceId+" AND `id` > "+lastReceivedId+" ORDER BY `id` DESC LIMIT 100";
-        JSONArray result = (JSONArray) conn.execute(query);
-        int length = result.length();
-        DataPoint[] speed = new DataPoint[length];
-        DataPoint[] acc_x = new DataPoint[length];
-        DataPoint[] acc_y = new DataPoint[length];
-        DataPoint[] acc_z = new DataPoint[length];
-        DataPoint[] ang_x = new DataPoint[length];
-        DataPoint[] ang_y = new DataPoint[length];
-        DataPoint[] ang_z = new DataPoint[length];
-        int index = 0;
-        for (int i=result.length()-1;i>=0;i--) {
-            try {
-                JSONObject items = result.getJSONObject(i);
-                lastReceivedId = items.getInt("id");
-                speed[index] = new DataPoint((double) index, Double.parseDouble(items.getString("speed").replace(" Kph","")));
-                acc_x[index] = new DataPoint((double) index, Double.parseDouble(items.getString("acc_x").replace(" m/s","")));
-                acc_y[index] = new DataPoint((double) index, Double.parseDouble(items.getString("acc_y").replace(" m/s","")));
-                acc_z[index] = new DataPoint((double) index, Double.parseDouble(items.getString("acc_z").replace(" m/s","")));
-                ang_x[index] = new DataPoint((double) index, Double.parseDouble(items.getString("ang_x").replace(" deg","")));
-                ang_y[index] = new DataPoint((double) index, Double.parseDouble(items.getString("ang_y").replace(" deg","")));
-                ang_z[index] = new DataPoint((double) index, Double.parseDouble(items.getString("ang_z").replace(" deg","")));
-                ++index;
-            } catch (JSONException e) {
-                e.printStackTrace();
+        AsyncTask asyncTask = conn.execute(query);
+        conn.setOnResult(new MySQLConnection.OnResult(asyncTask) {
+            @Override
+            public void getResult(Object dataObject) throws Exception {
+                JSONArray result = (JSONArray)dataObject;
+                int index = 0;
+                int length = result.length();
+                DataPoint[] spd = new DataPoint[length];
+                DataPoint[] acc_x = new DataPoint[length];
+                DataPoint[] acc_y = new DataPoint[length];
+                DataPoint[] acc_z = new DataPoint[length];
+                DataPoint[] ang_x = new DataPoint[length];
+                DataPoint[] ang_y = new DataPoint[length];
+                DataPoint[] ang_z = new DataPoint[length];
+                for (int i=result.length()-1;i>=0;i--) {
+                    JSONObject items = result.getJSONObject(i);
+                    lastReceivedId = items.getInt("id");
+                    points.add(new LatLng(items.getDouble("lat"),(items.getDouble("lon"))));
+                    spd[index] = new DataPoint((double) index, Double.parseDouble(items.getString("speed").replace(" Kph","")));
+                    acc_x[index] = new DataPoint((double) index, Double.parseDouble(items.getString("acc_x").replace(" m/s","")));
+                    acc_y[index] = new DataPoint((double) index, Double.parseDouble(items.getString("acc_y").replace(" m/s","")));
+                    acc_z[index] = new DataPoint((double) index, Double.parseDouble(items.getString("acc_z").replace(" m/s","")));
+                    ang_x[index] = new DataPoint((double) index, Double.parseDouble(items.getString("ang_x").replace(" deg","")));
+                    ang_y[index] = new DataPoint((double) index, Double.parseDouble(items.getString("ang_y").replace(" deg","")));
+                    ang_z[index] = new DataPoint((double) index, Double.parseDouble(items.getString("ang_z").replace(" deg","")));
+                    ++index;
+                }
+                speedList.addAll(Arrays.asList(spd,null));
+                accList.addAll(Arrays.asList(acc_x,acc_y,acc_z));
+                angList.addAll(Arrays.asList(ang_x,ang_y,ang_z));
+                while (true){
+                    if (index == length){
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (async){
+                                    //appending data
+                                    if (map != null)map.appendData(points);
+                                    speed.appendData(speedList);
+                                    acceleration.appendData(accList);
+                                    angle.appendData(angList);
+                                }
+                                else{
+
+                                    System.out.println(angList);
+                                    // Getting GoogleMap object from the fragment
+                                    map = new MapCallback(DeviceData.this,points);
+                                    supportMapFragment.getMapAsync(map);
+                                    // setting value to the fragment
+                                    speed.setData(speedList);
+                                    acceleration.setData(accList);
+                                    angle.setData(angList);
+                                }
+                            }
+                        });
+                        return;
+                    }
+                }
             }
-        }
-        List<DataPoint[]> speedList = Arrays.asList(speed,null);
-        List<DataPoint[]> accList = Arrays.asList(acc_x,acc_y,acc_z);
-        List<DataPoint[]> angList = Arrays.asList(ang_x,ang_y,ang_z);
-        return new List[]{speedList,accList,angList};
+
+        });
     }
 }

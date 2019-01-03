@@ -2,7 +2,6 @@ package in.blrobotics.blaengarrobotics;
 
 import java.sql.*;
 import java.util.concurrent.TimeUnit;
-
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
@@ -20,10 +19,19 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class MySQLConnection {
-    public static String dbConnUrl,dbUserName,dbPassword;
-    public static Connection conn = null;
+    private static String dbConnUrl,dbUserName,dbPassword;
+    private static Connection conn = null;
     private ProgressBar progressBar = null;
     private Context context;
+    private boolean connecting = false;
+
+    abstract static class OnResult{
+        AsyncTask asyncTask;
+        OnResult(AsyncTask asyncTask){
+            this.asyncTask = asyncTask;
+        }
+        abstract void getResult(Object dataObject) throws Exception;
+    }
 
     public MySQLConnection(Context context) {
         this.context = context;
@@ -39,29 +47,24 @@ public class MySQLConnection {
     }
 
     public void open(){
-        Thread open = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (true){
-                    /* If connection is closed or null then try to reconnect */
-                    try{
-                        if (conn == null){
-                            connect();
-                        }
-                        else if (conn.isClosed()){
-                            connect();
-                        }
-                    }
-                    catch (SQLException e){
-                        e.printStackTrace();
-                    }
+        /* If connection is closed or null then try to reconnect */
+        try{
+            if (!connecting){
+                if (conn == null){
+                    connect();
+                }
+                else if (conn.isClosed()){
+                    connect();
                 }
             }
-        });
-        open.start();
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+        }
     }
 
     private void connect(){
+        connecting = true;
         /* checking internet connection */
         if(isInternetConnection()){
             /* Alternative of AsyncTask */
@@ -87,6 +90,7 @@ public class MySQLConnection {
         else{
             System.out.println(context.getString(R.string.error_internet_conn));
         }
+        connecting = false;
     }
 
     public void close(){
@@ -109,11 +113,17 @@ public class MySQLConnection {
     }
 
 
-    public Object execute(String query){
-        AsyncTask<String,Void,Object> asyncTask = new AsyncTask<String, Void, Object>() {
+    //@SuppressLint("StaticFieldLeak")
+    public AsyncTask execute(String query){
+        AsyncTask<String, Void, Object> asyncTask = new AsyncTask<String, Void, Object>() {
             @Override
             protected void onPreExecute(){
-                progressBar.setVisibility(View.VISIBLE);
+                ((Activity)context).runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        progressBar.setVisibility(View.VISIBLE);
+                    }
+                });
             }
 
             @Override
@@ -130,21 +140,66 @@ public class MySQLConnection {
 
             @Override
             protected void onPostExecute(Object result){
-                progressBar.setVisibility(View.GONE);
+                ((Activity)context).runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        progressBar.setVisibility(View.GONE);
+                    }
+                });
+
+            }
+            @Override
+            protected void onCancelled(){
+                ((Activity)context).runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        progressBar.setVisibility(View.GONE);
+                    }
+                });
             }
         };
         asyncTask.execute(query);
-        try {
-            return asyncTask.get(10, TimeUnit.SECONDS);
-        } catch (Exception e) {
-            Toast toast = Toast.makeText(context,"Connection Timeout",Toast.LENGTH_SHORT);
-            toast.show();
-        }
-        return null;
+        return asyncTask;
+    }
+
+    public void setOnResult(final OnResult onResultListener){
+        // putting it inside thread because progress bar will run in ui thread
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Object result = null;
+                try {
+                    result = onResultListener.asyncTask.get(10, TimeUnit.SECONDS);
+
+                } catch (Exception e) {
+                    showToastOnUiThread("Connection Timeout");
+                }
+
+                ((Activity)context).runOnUiThread(new Runnable() {
+                    public void run() {
+                        progressBar.setVisibility(View.GONE);
+                    }
+                });
+
+                onResultListener.asyncTask.cancel(true);
+                // publishing result
+                if (onResultListener != null){
+                    try{
+                        onResultListener.getResult(result);
+                    }
+                    catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+        thread.start();
     }
 
     /* All user submitted query will be execute here */
     private Object executeQuery(String query){
+        // trying to opening the connection if it is closed
+        open();
         /* null means error here */
         if (conn != null){
             if (!query.isEmpty()) {

@@ -1,6 +1,5 @@
 package in.blrobotics.blaengarrobotics;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.support.v7.app.ActionBar;

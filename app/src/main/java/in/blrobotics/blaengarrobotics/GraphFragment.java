@@ -46,11 +46,11 @@ public class GraphFragment extends Fragment {
 
         // optional styles
         graph.setTitleTextSize(30);
-        graph.setTitleColor(Color.BLACK);
+//        graph.setTitleColor(Color.BLACK);
         graph.getGridLabelRenderer().setVerticalAxisTitleTextSize(15);
-        graph.getGridLabelRenderer().setVerticalAxisTitleColor(Color.BLACK);
+//        graph.getGridLabelRenderer().setVerticalAxisTitleColor(Color.BLACK);
         graph.getGridLabelRenderer().setHorizontalAxisTitleTextSize(15);
-        graph.getGridLabelRenderer().setHorizontalAxisTitleColor(Color.BLACK);
+//        graph.getGridLabelRenderer().setHorizontalAxisTitleColor(Color.BLACK);
         graph.getGridLabelRenderer().setHighlightZeroLines(true);    //highlight the axis
 
         // legend
