@@ -5,4 +5,11 @@
             android:title="@string/pref_title_theme"
             android:summary="@string/pref_description_theme"
             android:defaultValue="false"/>
+    <ListPreference
+            android:key="view_type"
+            android:title="Data view type"
+            android:defaultValue="1"
+            android:entries="@array/type_names_array"
+            android:entryValues="@array/type_value_array"
+            android:summary="Select a data view type"/>
 </PreferenceScreen>
