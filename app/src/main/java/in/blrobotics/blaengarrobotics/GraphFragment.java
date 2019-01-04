@@ -131,9 +131,6 @@ public class GraphFragment extends Fragment {
 
             }
         }
-
-
-
     }
 
     public void setLinesTitle(List<String> titleList){
@@ -151,7 +148,6 @@ public class GraphFragment extends Fragment {
         for (LineGraphSeries<DataPoint> lineGraphSeries:lineGraphSeriesList){
             if (data.hasNext()){
                 lineGraphSeries.resetData(data.next());
-                lineGraphSeries.getHighestValueX();
             }
         }
 
@@ -168,4 +164,3 @@ public class GraphFragment extends Fragment {
         }
     }
 }
-
