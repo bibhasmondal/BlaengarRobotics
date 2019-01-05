@@ -60,7 +60,6 @@ public class AddDevice extends AppCompatActivity {
                         ArrayAdapter<String> deviceListAdapter = new ArrayAdapter<String>(AddDevice.this,android.R.layout.simple_dropdown_item_1line, deviceList);
                         deviceSlNo.setThreshold(1);//will start working from first character
                         deviceSlNo.setAdapter(deviceListAdapter);//setting the adapter data into the AutoCompleteTextView
-                        deviceSlNo.setTextColor(Color.BLACK);
                     }
                 });
 

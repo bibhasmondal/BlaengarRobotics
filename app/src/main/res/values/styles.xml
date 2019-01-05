@@ -8,12 +8,14 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
     <!-- preference theme. -->
-    <style name="BlackTheme" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+    <style name="DarkTheme" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="android:dialogTheme">@style/AlertDialog.AppCompat</item>
+        <item name="android:textColorPrimary">@color/primaryTextColorDark</item>
+        <item name="android:textColorSecondary">@color/secondaryTextColorDark</item>
+        <item name="android:divider">@color/dividerColorDark</item>
     </style>
 
     <style name="LightTheme" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -21,6 +23,13 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+    <style name="DarkDialogTheme" parent="Base.Theme.AppCompat.Dialog">
+        <item name="android:textColorPrimary">@color/primaryTextColorDark</item>
+        <item name="android:textColorSecondary">@color/secondaryTextColorDark</item>
+        <item name="android:divider">@color/dividerColorDark</item>
+        <item name="android:windowBackground">@color/windowBackgroundDark</item>
     </style>
     
 

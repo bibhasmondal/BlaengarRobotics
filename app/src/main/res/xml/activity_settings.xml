@@ -5,7 +5,8 @@
             android:title="@string/pref_title_theme"
             android:summary="@string/pref_description_theme"
             android:defaultValue="false"/>
-    <ListPreference
+
+    <in.blrobotics.blaengarrobotics.MyListPreference
             android:key="view_type"
             android:title="Data view type"
             android:defaultValue="1"

@@ -5,5 +5,12 @@
     <color name="colorAccent">#488F80</color>
     <color name="colorBackground">#FFFFFF</color>
     <color name="colorSplash">#000000</color>
+    <color name="primaryTextColorDark">#F4F4F6</color>
+    <color name="secondaryTextColorDark">#96F4F4F6</color>
+    <color name="dividerColorDark">#F2F2F3</color>
+    <color name="windowBackgroundDark">#33343B</color>
+    <color name="primaryTextColorLight">#33343B</color>
+    <color name="secondaryTextColorLight">#8033343B</color>
+    <color name="dividerColorLight">#F2F2F3</color>
+    <color name="windowBackgroundLight">#F4F4F6</color>
 </resources>
-<!--<color name="colorAccent">#488F80</color>-->
