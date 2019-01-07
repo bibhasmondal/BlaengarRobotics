@@ -112,7 +112,7 @@ public class PagerMapFragment extends Fragment implements OnMapReadyCallback {
                 for (int i=result.length()-1;i>=0;i--) {
                     JSONObject items = result.getJSONObject(i);
                     lastReceivedId = items.getInt("id");
-                    points.add(new LatLng(items.getDouble("lat"),(items.getDouble("lon"))));
+                    points.add(new LatLng(items.getDouble("lat"),items.getDouble("lon")));
                 }
                 activity.runOnUiThread(new Runnable() {
                     @Override

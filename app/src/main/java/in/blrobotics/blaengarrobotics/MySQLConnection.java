@@ -6,6 +6,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.Application;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.os.*;
@@ -33,9 +34,13 @@ public class MySQLConnection {
         abstract void getResult(Object dataObject) throws Exception;
     }
 
+    public MySQLConnection(){}
+
     public MySQLConnection(Context context) {
         this.context = context;
-        loadDynamicProgressBar(context);
+        if (!(context instanceof Application)){
+            loadDynamicProgressBar((Activity)context);
+        }
     }
 
     public MySQLConnection(final Context context, String dbConnAddress, String dbName, String dbUserName, String dbPassword) {
@@ -105,11 +110,16 @@ public class MySQLConnection {
     }
 
     private void showToastOnUiThread(final String text){
-        ((Activity)context).runOnUiThread(new Runnable() {
-            public void run() {
-                Toast.makeText(context, text, Toast.LENGTH_LONG).show();
-            }
-        });
+        if (!(context instanceof Application)){
+            ((Activity)context).runOnUiThread(new Runnable() {
+                public void run() {
+                    Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+                }
+            });
+        }
+        else{
+            System.out.println(text);
+        }
     }
 
 
@@ -118,12 +128,13 @@ public class MySQLConnection {
         AsyncTask<String, Void, Object> asyncTask = new AsyncTask<String, Void, Object>() {
             @Override
             protected void onPreExecute(){
-                ((Activity)context).runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        progressBar.setVisibility(View.VISIBLE);
-                    }
-                });
+                if (!(context instanceof Application)){
+                    ((Activity)context).runOnUiThread(new Runnable() {
+                        public void run() {
+                            progressBar.setVisibility(View.VISIBLE);
+                        }
+                    });
+                }
             }
 
             @Override
@@ -140,22 +151,23 @@ public class MySQLConnection {
 
             @Override
             protected void onPostExecute(Object result){
-                ((Activity)context).runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        progressBar.setVisibility(View.GONE);
-                    }
-                });
-
+                if (!(context instanceof Application)){
+                    ((Activity)context).runOnUiThread(new Runnable() {
+                        public void run() {
+                            progressBar.setVisibility(View.GONE);
+                        }
+                    });
+                }
             }
             @Override
             protected void onCancelled(){
-                ((Activity)context).runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        progressBar.setVisibility(View.GONE);
-                    }
-                });
+                if (!(context instanceof Application)){
+                    ((Activity)context).runOnUiThread(new Runnable() {
+                        public void run() {
+                            progressBar.setVisibility(View.GONE);
+                        }
+                    });
+                }
             }
         };
         asyncTask.execute(query);
@@ -175,11 +187,13 @@ public class MySQLConnection {
                     showToastOnUiThread("Connection Timeout");
                 }
 
-                ((Activity)context).runOnUiThread(new Runnable() {
-                    public void run() {
-                        progressBar.setVisibility(View.GONE);
-                    }
-                });
+                if (progressBar != null){
+                    ((Activity)context).runOnUiThread(new Runnable() {
+                        public void run() {
+                            progressBar.setVisibility(View.GONE);
+                        }
+                    });
+                }
 
                 onResultListener.asyncTask.cancel(true);
                 // publishing result

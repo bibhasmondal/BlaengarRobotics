@@ -1,5 +1,6 @@
 package in.blrobotics.blaengarrobotics;
 
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -8,7 +9,6 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -29,6 +29,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     MySQLConnection conn;
     SharedPreferences sharedPreferences;
+    Intent geofenceNotificationService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,8 +50,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this,AddDevice.class);
                 startActivity(intent);
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
             }
         });
 
@@ -70,13 +69,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         TextView email = hView.findViewById(R.id.email);
 
         Bitmap image = byteArrayToBitmap(stringToByteArray(sharedPreferences.getString("dp",null)));
-        if (image!=null){
+        if (image != null){
             dp.setImageBitmap(image);
         }
 
         name.setText(sharedPreferences.getString("f_name","")+" "+sharedPreferences.getString("l_name",""));
         email.setText(sharedPreferences.getString("email",""));
 
+        /* Start geofence notification service */
+        GeofenceNotificationService gns = new GeofenceNotificationService(MainActivity.this);
+        geofenceNotificationService = new Intent(MainActivity.this,gns.getClass());
+        if (!isMyServiceRunning(gns.getClass())) {
+            startService(geofenceNotificationService);
+        }
 
         /* List view */
         listRefresh();
@@ -91,7 +96,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
-
     }
 
     @Override
@@ -102,6 +106,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else {
             super.onBackPressed();
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        stopService(geofenceNotificationService);
+        super.onDestroy();
     }
 
     @Override
@@ -138,6 +148,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Handle navigation view item clicks here.
         switch (item.getItemId()){
             case R.id.nav_dashboard:
+                break;
+
+            case R.id.nav_geofence:
+                Intent geofence = new Intent(this,GeofenceActivity.class);
+                startActivity(geofence);
                 break;
 
             case R.id.nav_add:
@@ -265,5 +280,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         }
         return  null;
+    }
+
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
     }
 }

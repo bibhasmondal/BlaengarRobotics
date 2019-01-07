@@ -19,6 +19,7 @@ public class PagerGraphFragment extends Fragment {
     Activity activity;
     GraphFragment[] graph = new GraphFragment[2];
     private int lastReceivedId = 0;
+    private double lastX = 0d;
     private int deviceId;
     List<String> color = Arrays.asList("red","green","blue");
     String selectPharms = "";
@@ -117,11 +118,11 @@ public class PagerGraphFragment extends Fragment {
                             String key = keys.next();
                             int k = 0;
                             for (String attr : getArguments().getStringArray(key)) {
-                                data[j][k++][index] = new DataPoint((double) lastReceivedId, Double.parseDouble(items.getString(attr).replaceAll("[^0-9.]", "")));
+                                data[j][k++][index] = new DataPoint(lastX, Double.parseDouble(items.getString(attr).replaceAll("[^0-9.]", "")));
                             }
                         }
                     }
-                    ++index;
+                    ++index;++lastX;
                 }
                 dataList[0].addAll(Arrays.asList(data[0]));
                 dataList[1].addAll(Arrays.asList(data[1]));

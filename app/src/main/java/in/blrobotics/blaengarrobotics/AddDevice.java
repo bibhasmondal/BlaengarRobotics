@@ -1,10 +1,8 @@
 package in.blrobotics.blaengarrobotics;
 
-import android.R.id;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
@@ -17,7 +15,6 @@ import android.widget.Button;
 import android.widget.Toast;
 import org.json.JSONArray;
 import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -73,7 +70,7 @@ public class AddDevice extends AppCompatActivity {
 //            String name = getResources().getResourceEntryName(view.getId());
 //            Toast toast = Toast.makeText(AddDevice.this,name,Toast.LENGTH_SHORT);
 //            toast.show();
-            Integer serialNo = Integer.parseInt(deviceSlNo.getText().toString());
+            String serialNo = deviceSlNo.getText().toString();
             AsyncTask asyncTask = conn.execute("SELECT `id` from `Devices` where serial_no='"+serialNo+"'");
             conn.setOnResult(new MySQLConnection.OnResult(asyncTask) {
                 @Override
@@ -137,7 +134,7 @@ public class AddDevice extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case id.home:
+            case R.id.home:
                 finish();
                 return true;
             default:

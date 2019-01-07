@@ -25,6 +25,7 @@ public class DeviceData extends AppCompatActivity implements ActionBar.TabListen
     MySQLConnection conn;
     private int deviceId;
     private int lastReceivedId = 0;
+    private double lastX = 0;
     private final Handler handler = new Handler();
     private Runnable runnable;
     private int syncTime = 5000;
@@ -277,15 +278,15 @@ public class DeviceData extends AppCompatActivity implements ActionBar.TabListen
                     JSONObject items = result.getJSONObject(i);
                     lastReceivedId = items.getInt("id");
                     points.add(new LatLng(items.getDouble("lat"),(items.getDouble("lon"))));
-                    spd[index] = new DataPoint((double) lastReceivedId, Double.parseDouble(items.getString("speed").replaceAll("[^0-9.]", "")));
-                    tmp[index] = new DataPoint((double) lastReceivedId, Double.parseDouble(items.getString("temp").replaceAll("[^0-9.]", "")));
-                    acc_x[index] = new DataPoint((double) lastReceivedId, Double.parseDouble(items.getString("acc_x").replaceAll("[^0-9.]", "")));
-                    acc_y[index] = new DataPoint((double) lastReceivedId, Double.parseDouble(items.getString("acc_y").replaceAll("[^0-9.]", "")));
-                    acc_z[index] = new DataPoint((double) lastReceivedId, Double.parseDouble(items.getString("acc_z").replaceAll("[^0-9.]", "")));
-                    ang_x[index] = new DataPoint((double) lastReceivedId, Double.parseDouble(items.getString("ang_x").replaceAll("[^0-9.]", "")));
-                    ang_y[index] = new DataPoint((double) lastReceivedId, Double.parseDouble(items.getString("ang_y").replaceAll("[^0-9.]", "")));
-                    ang_z[index] = new DataPoint((double) lastReceivedId, Double.parseDouble(items.getString("ang_z").replaceAll("[^0-9.]", "")));
-                    ++index;
+                    spd[index] = new DataPoint(lastX, Double.parseDouble(items.getString("speed").replaceAll("[^0-9.]", "")));
+                    tmp[index] = new DataPoint(lastX, Double.parseDouble(items.getString("temp").replaceAll("[^0-9.]", "")));
+                    acc_x[index] = new DataPoint(lastX, Double.parseDouble(items.getString("acc_x").replaceAll("[^0-9.]", "")));
+                    acc_y[index] = new DataPoint(lastX, Double.parseDouble(items.getString("acc_y").replaceAll("[^0-9.]", "")));
+                    acc_z[index] = new DataPoint(lastX, Double.parseDouble(items.getString("acc_z").replaceAll("[^0-9.]", "")));
+                    ang_x[index] = new DataPoint(lastX, Double.parseDouble(items.getString("ang_x").replaceAll("[^0-9.]", "")));
+                    ang_y[index] = new DataPoint(lastX, Double.parseDouble(items.getString("ang_y").replaceAll("[^0-9.]", "")));
+                    ang_z[index] = new DataPoint(lastX, Double.parseDouble(items.getString("ang_z").replaceAll("[^0-9.]", "")));
+                    ++index;++lastX;
                 }
                 speedList.addAll(Arrays.asList(spd,null));
                 tempList.addAll((Arrays.asList(tmp,null)));

@@ -1,6 +1,5 @@
 package in.blrobotics.blaengarrobotics;
 
-import android.R.id;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.app.ActionBar;
@@ -68,7 +67,7 @@ public class RegisterActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case id.home:
+            case R.id.home:
                 finish();
                 return true;
             default:

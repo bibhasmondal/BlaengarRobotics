@@ -10,6 +10,11 @@
             android:title="Dashboard" />
 
         <item
+            android:id="@+id/nav_geofence"
+            android:icon="@drawable/ic_menu_dashboard"
+            android:title="Geofence" />
+
+        <item
             android:id="@+id/nav_add"
             android:icon="@drawable/ic_menu_add"
             android:title="Add Device" />
