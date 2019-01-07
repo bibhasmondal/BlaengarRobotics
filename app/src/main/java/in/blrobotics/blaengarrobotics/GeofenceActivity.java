@@ -118,7 +118,7 @@ public class GeofenceActivity extends AppCompatActivity implements OnMapReadyCal
         LatLng position = marker.getPosition();
         if (points.contains(position)) points.remove(position);
         marker.remove();
-        drawPolygon();
+        if(!points.isEmpty())drawPolygon();
         return true;
     }
 
@@ -161,21 +161,43 @@ public class GeofenceActivity extends AppCompatActivity implements OnMapReadyCal
             @Override
             public void getResult(Object dataObject) throws Exception {
                 JSONArray result = (JSONArray)dataObject;
-                if (!result.isNull(0)){
-                    final List<String> deviceList = new ArrayList<>();
-                    final List<Integer> idList = new ArrayList<>();
-                    for (int i = 0; i < result.length(); i++) {
-                        final JSONObject e = result.getJSONObject(i);
-                        String name = e.getString("serial_no");
-                        int id = e.getInt("id");
-                        deviceList.add(name);
-                        idList.add(id);
+                if (result != null){
+                    if (!result.isNull(0)){
+                        final List<String> deviceList = new ArrayList<>();
+                        final List<Integer> idList = new ArrayList<>();
+                        for (int i = 0; i < result.length(); i++) {
+                            final JSONObject e = result.getJSONObject(i);
+                            String name = e.getString("serial_no");
+                            int id = e.getInt("id");
+                            deviceList.add(name);
+                            idList.add(id);
+                        }
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                // Showing alert dialog to choose a device
+                                alertDiaglog(deviceList,idList);
+                            }
+                        });
                     }
+                    else{
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast toast = Toast.makeText(GeofenceActivity.this, "You have no device", Toast.LENGTH_SHORT);
+                                toast.show();
+                                finish();
+                            }
+                        });
+                    }
+                }
+                else{
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            // Showing alert dialog to choose a device
-                            alertDiaglog(deviceList,idList);
+                            Toast toast = Toast.makeText(GeofenceActivity.this, "Please check your internet connection", Toast.LENGTH_SHORT);
+                            toast.show();
+                            finish();
                         }
                     });
                 }
@@ -233,18 +255,19 @@ public class GeofenceActivity extends AppCompatActivity implements OnMapReadyCal
                     String pointList = result.getJSONObject(0).getString("coordinates");
                     Type type = new TypeToken<List<LatLng>>() {}.getType();
                     points = gson.fromJson(pointList, type);
-                    System.out.println(points);
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            drawPolygon();
-                            for(LatLng pos:points){
-                                MarkerOptions markerOptions = new MarkerOptions();
-                                markerOptions.position(pos);
-                                googleMap.addMarker(markerOptions);
+                    if (!points.isEmpty()){
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                drawPolygon();
+                                for(LatLng pos:points){
+                                    MarkerOptions markerOptions = new MarkerOptions();
+                                    markerOptions.position(pos);
+                                    googleMap.addMarker(markerOptions);
+                                }
                             }
-                        }
-                    });
+                        });
+                    }
                 }
             }
         });
