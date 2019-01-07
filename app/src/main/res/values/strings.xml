@@ -67,4 +67,36 @@
         <item>0</item>
         <item>1</item>
     </string-array>
+    <!--Geofence Interval-->
+    <string-array name="geofence_interval_array">
+        <item>1 Minute</item>
+        <item>10 Minutes</item>
+        <item>30 Minutes</item>
+        <item>1 Hour</item>
+    </string-array>
+    <!--Geofence Interval values-->
+    <string-array name="geofence_interval_value_array">
+        <item>60000</item>
+        <item>600000</item>
+        <item>1800000</item>
+        <item>3600000</item>
+    </string-array>
+    <!--Data Interval-->
+    <string-array name="data_interval_array">
+        <item>10 Seconds</item>
+        <item>30 Seconds</item>
+        <item>1 Minute</item>
+        <item>10 Minutes</item>
+        <item>30 Minutes</item>
+        <item>1 Hour</item>
+    </string-array>
+    <!--Data Interval values-->
+    <string-array name="data_interval_value_array">
+        <item>10000</item>
+        <item>30000</item>
+        <item>60000</item>
+        <item>600000</item>
+        <item>1800000</item>
+        <item>3600000</item>
+    </string-array>
 </resources>

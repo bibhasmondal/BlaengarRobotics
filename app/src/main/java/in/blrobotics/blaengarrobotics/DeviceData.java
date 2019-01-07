@@ -1,6 +1,7 @@
 package in.blrobotics.blaengarrobotics;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -28,7 +29,7 @@ public class DeviceData extends AppCompatActivity implements ActionBar.TabListen
     private double lastX = 0;
     private final Handler handler = new Handler();
     private Runnable runnable;
-    private int syncTime = 5000;
+    private int syncTime = 10000;
 
     protected MySupportMapFragment mySupportMapFragment;
     protected ScrollMapCallback map;
@@ -62,6 +63,16 @@ public class DeviceData extends AppCompatActivity implements ActionBar.TabListen
         textView = (TextView) findViewById(R.id.tv_device);
         // getting serial no from device id
         getSNFromId(deviceId);
+
+        // Setting up view type
+        SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(this);
+        if (preference.getString("view_type", "1").equals("1")) {
+            isTabView = true;
+        } else {
+            isTabView = false;
+            // Getting sync time from setting
+            syncTime = Integer.parseInt(preference.getString("data_sync","10000"));
+        }
 
         // Setting up view type
         if (PreferenceManager.getDefaultSharedPreferences(this).getString("view_type", "1").equals("1")) {

@@ -1,6 +1,7 @@
 package in.blrobotics.blaengarrobotics;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
@@ -33,7 +34,7 @@ public class PagerMapFragment extends Fragment implements OnMapReadyCallback {
     MySQLConnection conn;
     private final Handler handler = new Handler();
     private Runnable runnable;
-    private int syncTime = 5000;
+    private int syncTime = 10000;
     private int deviceId;
 
     public PagerMapFragment(){
@@ -47,6 +48,11 @@ public class PagerMapFragment extends Fragment implements OnMapReadyCallback {
             getArguments().remove("deviceId");
         }
         super.onCreate(savedInstateState);
+
+        // Setting up Sync time
+        SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(getContext());
+        syncTime = Integer.parseInt(preference.getString("data_sync","10000"));
+
     }
 
 

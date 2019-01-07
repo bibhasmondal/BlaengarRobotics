@@ -13,4 +13,20 @@
             android:entries="@array/type_names_array"
             android:entryValues="@array/type_value_array"
             android:summary="Select a data view type"/>
+
+    <in.blrobotics.blaengarrobotics.MyListPreference
+            android:key="geo_interval"
+            android:title="Geofence checking interval"
+            android:defaultValue="60000"
+            android:entries="@array/geofence_interval_array"
+            android:entryValues="@array/geofence_interval_value_array"
+            android:summary="Select an interval"/>
+
+    <in.blrobotics.blaengarrobotics.MyListPreference
+            android:key="data_sync"
+            android:title="Data synchronization interval"
+            android:defaultValue="10000"
+            android:entries="@array/data_interval_array"
+            android:entryValues="@array/data_interval_value_array"
+            android:summary="Select an interval"/>
 </PreferenceScreen>

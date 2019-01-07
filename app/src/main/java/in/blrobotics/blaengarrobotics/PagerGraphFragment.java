@@ -1,10 +1,12 @@
 package in.blrobotics.blaengarrobotics;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
+import android.support.v7.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,7 +27,7 @@ public class PagerGraphFragment extends Fragment {
     String selectPharms = "";
     private final Handler handler = new Handler();
     private Runnable runnable;
-    private int syncTime = 5000;
+    private int syncTime = 10000;
 
     public PagerGraphFragment(){
         // Required empty public constructor
@@ -38,7 +40,10 @@ public class PagerGraphFragment extends Fragment {
             getArguments().remove("deviceId");
         }
         super.onCreate(savedInstateState);
-        super.onCreate(savedInstateState);
+
+        // Setting up Sync time
+        SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(getContext());
+        syncTime = Integer.parseInt(preference.getString("data_sync","10000"));
     }
 
     @Override

@@ -12,6 +12,7 @@ import android.os.AsyncTask;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
+import android.support.v7.preference.PreferenceManager;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -30,7 +31,7 @@ public class GeofenceNotificationService extends Service {
     NotificationCompat.Builder mBuilder;
     NotificationManager notificationManager;
     private SharedPreferences sharedPreferences;
-    private int geofenceSynchronizationTime = 2*60*1000;
+    private int geofenceSynchronizationTime = 60000;
 
     @Nullable
     @Override
@@ -62,6 +63,10 @@ public class GeofenceNotificationService extends Service {
         mBuilder.setLargeIcon(anImage);
         // Gets an instance of the NotificationManager service
         notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+
+        // Setting up Geofence checking interval
+        SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(this);
+        geofenceSynchronizationTime = Integer.parseInt(preference.getString("geo_interval","60000"));
     }
 
     @Override
