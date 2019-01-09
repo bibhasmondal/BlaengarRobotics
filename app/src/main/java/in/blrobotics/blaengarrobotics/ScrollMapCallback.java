@@ -67,7 +67,9 @@ public class ScrollMapCallback implements OnMapReadyCallback {
         Geocoder geocoder = new Geocoder(context, Locale.getDefault());
         try {
             List<Address> addresses = geocoder.getFromLocation(position.latitude,position.longitude,1);
-            return new String[]{addresses.get(0).getAddressLine(0),addresses.get(0).getFeatureName()};
+            if (!addresses.isEmpty()){
+                return new String[]{addresses.get(0).getAddressLine(0),addresses.get(0).getFeatureName()};
+            }
 
         } catch (IOException e) {
             e.printStackTrace();
