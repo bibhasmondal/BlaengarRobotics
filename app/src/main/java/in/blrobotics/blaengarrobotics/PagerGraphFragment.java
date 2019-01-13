@@ -111,44 +111,46 @@ public class PagerGraphFragment extends Fragment {
             @Override
             public void getResult(Object dataObject) throws Exception {
                 JSONArray result = (JSONArray)dataObject;
-                int index = 0;
-                int length = result.length();
-                DataPoint[][][] data = new DataPoint[2][3][length];
-                for (int i=result.length()-1;i>=0;i--) {
-                    JSONObject items = result.getJSONObject(i);
-                    lastReceivedId = items.getInt("id");
-                    Iterator<String> keys = getArguments().keySet().iterator();
-                    for (int j = 0; j < 2; j++) {
-                        if (keys.hasNext()) {
-                            String key = keys.next();
-                            int k = 0;
-                            for (String attr : getArguments().getStringArray(key)) {
-                                data[j][k++][index] = new DataPoint(lastX, Double.parseDouble(items.getString(attr).replaceAll("[^0-9.]", "")));
-                            }
-                        }
-                    }
-                    ++index;++lastX;
-                }
-                dataList[0].addAll(Arrays.asList(data[0]));
-                dataList[1].addAll(Arrays.asList(data[1]));
-                while (true){
-                    if (index == length){
-                        activity.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (graph[0] != null && graph[1] !=null) {
-                                    if (async){
-                                        graph[0].appendData(dataList[0]);
-                                        graph[1].appendData(dataList[1]);
-                                    }
-                                    else {
-                                        graph[0].setData(dataList[0]);
-                                        graph[1].setData(dataList[1]);
-                                    }
+                if (result !=null){
+                    int index = 0;
+                    int length = result.length();
+                    DataPoint[][][] data = new DataPoint[2][3][length];
+                    for (int i=result.length()-1;i>=0;i--) {
+                        JSONObject items = result.getJSONObject(i);
+                        lastReceivedId = items.getInt("id");
+                        Iterator<String> keys = getArguments().keySet().iterator();
+                        for (int j = 0; j < 2; j++) {
+                            if (keys.hasNext()) {
+                                String key = keys.next();
+                                int k = 0;
+                                for (String attr : getArguments().getStringArray(key)) {
+                                    data[j][k++][index] = new DataPoint(lastX, Double.parseDouble(items.getString(attr).replaceAll("[^0-9.]", "")));
                                 }
                             }
-                        });
-                        return;
+                        }
+                        ++index;++lastX;
+                    }
+                    dataList[0].addAll(Arrays.asList(data[0]));
+                    dataList[1].addAll(Arrays.asList(data[1]));
+                    while (true){
+                        if (index == length){
+                            activity.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (graph[0] != null && graph[1] !=null) {
+                                        if (async){
+                                            graph[0].appendData(dataList[0]);
+                                            graph[1].appendData(dataList[1]);
+                                        }
+                                        else {
+                                            graph[0].setData(dataList[0]);
+                                            graph[1].setData(dataList[1]);
+                                        }
+                                    }
+                                }
+                            });
+                            return;
+                        }
                     }
                 }
             }

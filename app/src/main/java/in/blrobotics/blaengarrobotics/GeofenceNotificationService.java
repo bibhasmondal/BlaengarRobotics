@@ -8,6 +8,8 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
@@ -61,6 +63,9 @@ public class GeofenceNotificationService extends Service {
         Drawable myDrawable = getResources().getDrawable(R.mipmap.splash_icon_round);
         Bitmap anImage      = ((BitmapDrawable) myDrawable).getBitmap();
         mBuilder.setLargeIcon(anImage);
+        //Define sound URI
+        Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        mBuilder.setSound(soundUri);
         // Gets an instance of the NotificationManager service
         notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
 

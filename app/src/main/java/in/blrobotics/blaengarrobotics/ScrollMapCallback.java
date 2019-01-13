@@ -10,7 +10,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.*;
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -90,7 +90,8 @@ public class ScrollMapCallback implements OnMapReadyCallback {
     }
 
     public void appendData(List<LatLng> points){
-        this.points = Arrays.asList(lastLatLng);
+        this.points = new ArrayList<>();
+        this.points.add(lastLatLng);
         this.points.addAll(points);
         addPolyline(googleMap);
         setLocation(googleMap);

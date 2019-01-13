@@ -150,7 +150,7 @@ public class GraphFragment extends Fragment {
                 lineGraphSeries.resetData(data.next());
             }
         }
-
+        graph.getViewport().scrollToEnd();
     }
 
     public void appendData(List<DataPoint[]> dataList) {

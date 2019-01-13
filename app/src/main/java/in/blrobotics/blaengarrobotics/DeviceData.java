@@ -168,13 +168,13 @@ public class DeviceData extends AppCompatActivity implements ActionBar.TabListen
         pager.setVisibility(View.VISIBLE);
         //Map
         bundle = new Bundle();
-        bundle.putInt("deviceId",1);
+        bundle.putInt("deviceId",deviceId);
         PagerMapFragment map = new PagerMapFragment();
         map.setArguments(bundle);
 
         //speed and temp
         bundle = new Bundle();
-        bundle.putInt("deviceId",1);
+        bundle.putInt("deviceId",deviceId);
         bundle.putStringArray("Speed",new String[]{"speed"});
         bundle.putStringArray("Temp",new String[]{"temp"});
         PagerGraphFragment spdtmp = new PagerGraphFragment();
@@ -182,7 +182,7 @@ public class DeviceData extends AppCompatActivity implements ActionBar.TabListen
 
         // Acceleration and angle
         bundle = new Bundle();
-        bundle.putInt("deviceId",1);
+        bundle.putInt("deviceId",deviceId);
         bundle.putStringArray("Acceleration",new String[]{"acc_x","acc_y","acc_z"});
         bundle.putStringArray("Angle",new String[]{"ang_x","ang_y","ang_z"});
         PagerGraphFragment accang = new PagerGraphFragment();
