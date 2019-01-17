@@ -18,7 +18,6 @@
                 android:layout_below="@+id/logo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="#000"
                 android:textSize="20sp"
                 android:textStyle="bold"
                 android:layout_centerHorizontal="true"/>
@@ -28,7 +27,6 @@
                 android:layout_below="@+id/version"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="#000"
                 android:textSize="40sp"
                 android:textStyle="bold"
                 android:layout_centerHorizontal="true"
@@ -42,7 +40,6 @@
                 android:layout_centerHorizontal="true"
                 android:layout_below="@+id/dev"
                 android:text="Bibhas Mondal"
-                android:textColor="#000"
                 android:textSize="24sp"
                 android:textStyle="bold" />
 
@@ -54,7 +51,6 @@
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="5dp"
                 android:text="bibhasmondal96@gmail.com"
-                android:textColor="#000"
                 android:textSize="14sp"/>
 
         <TextView
@@ -64,7 +60,6 @@
                 android:layout_centerHorizontal="true"
                 android:layout_below="@+id/bibhasmondal_email"
                 android:text="Ritik Raj"
-                android:textColor="#000"
                 android:textSize="24sp"
                 android:textStyle="bold" />
 
@@ -76,7 +71,6 @@
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="5dp"
                 android:text="ritikraj730@gmail.com"
-                android:textColor="#000"
                 android:textSize="14sp"/>
 
 </RelativeLayout>

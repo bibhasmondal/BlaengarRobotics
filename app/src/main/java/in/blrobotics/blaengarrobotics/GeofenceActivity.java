@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.preference.PreferenceManager;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
@@ -97,6 +98,10 @@ public class GeofenceActivity extends AppCompatActivity implements OnMapReadyCal
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
+        // setting night mode on map
+        if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean("theme_switch", false)) {
+            googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.dark_map));
+        }
         this.googleMap = googleMap;
         chooseDevice();
         googleMap.setOnMapClickListener(this);
@@ -187,51 +192,12 @@ public class GeofenceActivity extends AppCompatActivity implements OnMapReadyCal
                 }
                 points.add(index+1,point);
             }
-            else{
-                if (point.longitude > points.get(0).longitude){
+            else {
+                if (point.longitude > points.get(0).longitude) {
                     points.add(points.remove(0));
                 }
-                points.add(0,point);
-//                int i;
-//                if (point.longitude > points.get(0).longitude){
-//                    i = 1;
-//                    if (points.size()>i) {
-//                        while ((points.get(0).latitude < points.get(i).latitude && point.longitude > points.get(i).longitude)) {
-//                            ++i;
-//                            if (i >= points.size() - 1) {
-//                                break;
-//                            }
-//                        }
-//                        int j=i;
-//                        while (point.latitude > points.get(j).latitude && point.longitude > points.get(j).longitude){
-//                            --j;
-//                            if(j <= 0){
-//                                break;
-//                            }
-//                        }
-//                        if (j >= 0)i=j+1;
-//                    }
-//                }
-//                else{
-//                    i = points.size();
-//                    while (points.get(0).latitude < points.get(i-1).latitude && point.longitude < points.get(i-1).longitude) {
-//                        --i;
-//                        if (i <= 0) {
-//                            break;
-//                        }
-//                    }
-//                    int j=i-1;
-//                    while (point.latitude > points.get(j).latitude && point.longitude < points.get(j).longitude){
-//                        ++j;
-//                        if(j >= points.size()-1){
-//                            break;
-//                        }
-//                        if (j <= points.size()-1)i=j-1;
-//                    }
-//                }
-//                points.add(i,point);
+                points.add(0, point);
             }
-
         }
         else {
             points.add(point);
