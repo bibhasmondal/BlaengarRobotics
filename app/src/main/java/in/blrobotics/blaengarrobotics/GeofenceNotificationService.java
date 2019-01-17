@@ -117,11 +117,11 @@ public class GeofenceNotificationService extends Service {
             timer = null;
         }
     }
-    public void showNotification(String deviceSN){
+    public void showNotification(int no,String deviceSN){
         mBuilder.setContentTitle("Device Serial Number "+deviceSN);
         mBuilder.setContentText("Out of geofence");
         // To post your notification to the notification bar
-        notificationManager.notify(0,mBuilder.build());
+        notificationManager.notify(no,mBuilder.build());
     }
 
     public void checkGeofenceByUserId(int userId){
@@ -157,6 +157,7 @@ public class GeofenceNotificationService extends Service {
                         // Getting device data
                         String query = "SELECT `id`,`lat`,`lon` FROM `Data` WHERE `device` =" + deviceID + " ORDER BY `id` DESC LIMIT 1";
                         AsyncTask asyncTask = conn.execute(query);
+                        final int notificationNo = i;
                         conn.setOnResult(new MySQLConnection.OnResult(asyncTask) {
                             @Override
                             public void getResult(Object dataObject) throws Exception {
@@ -168,7 +169,7 @@ public class GeofenceNotificationService extends Service {
                                         if (!points[0].isEmpty()){
                                             if (!PolyUtil.containsLocation(currPos,points[0],false)){
                                                 // Notification will shown here
-                                                showNotification(deviceSN);
+                                                showNotification(notificationNo,deviceSN);
                                             }
                                             return;
                                         }

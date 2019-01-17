@@ -130,8 +130,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //noinspection SimplifiableIfStatement
         switch (item.getItemId()){
             case R.id.action_about:
-//                Intent about = new Intent(this,AboutActivity.class);
-//                startActivity(about);
+                Intent about = new Intent(this,AboutActivity.class);
+                startActivity(about);
                 return  true;
             case R.id.action_settings:
                 Intent settings = new Intent(this,SettingsActivity.class);
@@ -161,8 +161,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
 
             case R.id.nav_account:
-//                Intent account = new Intent(this,AccountActivity.class);
-//                startActivity(account);
+                Intent account = new Intent(this,AccountActivity.class);
+                startActivity(account);
                 break;
 
             case R.id.nav_signout:

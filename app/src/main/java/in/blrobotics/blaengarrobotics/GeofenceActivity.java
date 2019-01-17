@@ -109,7 +109,7 @@ public class GeofenceActivity extends AppCompatActivity implements OnMapReadyCal
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.position(latLng);
         googleMap.addMarker(markerOptions);
-        points.add(latLng);
+        appendPoint(latLng);
         drawPolygon();
     }
 
@@ -152,6 +152,90 @@ public class GeofenceActivity extends AppCompatActivity implements OnMapReadyCal
                 }
             }
         });
+    }
+
+    public void appendPoint(LatLng point){
+//        System.out.println(points.get(0));
+        int index = points.size()-1;
+        if (index>=0){
+            if (points.get(0).latitude > point.latitude){
+                while (points.get(index).longitude < points.get(0).longitude){
+                    --index;
+                    if (index <= 0) {
+                        break;
+                    }
+                }
+                if (points.get(0).longitude < point.longitude) {
+                    // For right part
+                    //checking up down position of points
+                    while (point.latitude > points.get(index).latitude) {
+                        --index;
+                        if (index <= 0) {
+                            break;
+                        }
+                    }
+                }
+                else {
+                    if (points.size()>index+1){
+                        while (point.latitude > points.get(index+1).latitude) {
+                            ++index;
+                            if (index+1 > points.size()-1) {
+                                break;
+                            }
+                        }
+                    }
+                }
+                points.add(index+1,point);
+            }
+            else{
+                if (point.longitude > points.get(0).longitude){
+                    points.add(points.remove(0));
+                }
+                points.add(0,point);
+//                int i;
+//                if (point.longitude > points.get(0).longitude){
+//                    i = 1;
+//                    if (points.size()>i) {
+//                        while ((points.get(0).latitude < points.get(i).latitude && point.longitude > points.get(i).longitude)) {
+//                            ++i;
+//                            if (i >= points.size() - 1) {
+//                                break;
+//                            }
+//                        }
+//                        int j=i;
+//                        while (point.latitude > points.get(j).latitude && point.longitude > points.get(j).longitude){
+//                            --j;
+//                            if(j <= 0){
+//                                break;
+//                            }
+//                        }
+//                        if (j >= 0)i=j+1;
+//                    }
+//                }
+//                else{
+//                    i = points.size();
+//                    while (points.get(0).latitude < points.get(i-1).latitude && point.longitude < points.get(i-1).longitude) {
+//                        --i;
+//                        if (i <= 0) {
+//                            break;
+//                        }
+//                    }
+//                    int j=i-1;
+//                    while (point.latitude > points.get(j).latitude && point.longitude < points.get(j).longitude){
+//                        ++j;
+//                        if(j >= points.size()-1){
+//                            break;
+//                        }
+//                        if (j <= points.size()-1)i=j-1;
+//                    }
+//                }
+//                points.add(i,point);
+            }
+
+        }
+        else {
+            points.add(point);
+        }
     }
 
     public void chooseDevice(){

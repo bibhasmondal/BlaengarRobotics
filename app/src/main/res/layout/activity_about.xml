@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <ImageView
+                android:id="@+id/logo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@mipmap/splash_foreground"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="100dp"/>
+
+        <TextView
+                android:id="@+id/version"
+                android:layout_below="@+id/logo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#000"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:layout_centerHorizontal="true"/>
+
+        <TextView
+                android:id="@+id/dev"
+                android:layout_below="@+id/version"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#000"
+                android:textSize="40sp"
+                android:textStyle="bold"
+                android:layout_centerHorizontal="true"
+                android:text="Developers"
+                android:layout_margin="50dp"/>
+
+        <TextView
+                android:id="@+id/bibhasmondal_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_below="@+id/dev"
+                android:text="Bibhas Mondal"
+                android:textColor="#000"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+        <TextView
+                android:id="@+id/bibhasmondal_email"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/bibhasmondal_name"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="5dp"
+                android:text="bibhasmondal96@gmail.com"
+                android:textColor="#000"
+                android:textSize="14sp"/>
+
+        <TextView
+                android:id="@+id/ritikraj_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_below="@+id/bibhasmondal_email"
+                android:text="Ritik Raj"
+                android:textColor="#000"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+        <TextView
+                android:id="@+id/ritikraj_email"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/ritikraj_name"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="5dp"
+                android:text="ritikraj730@gmail.com"
+                android:textColor="#000"
+                android:textSize="14sp"/>
+
+</RelativeLayout>
